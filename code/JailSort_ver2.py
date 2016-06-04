@@ -9,12 +9,12 @@ import csv
 # import mysqldb
 
 # Array that holds the all the sliced out blocks
-entryBlocks = []
+entry_blocks = []
 
-# List of chargeTypes. Used to verify that a line is a charge entry since the
+# List of charge_types. Used to verify that a line is a charge entry since the
 # number of charges varies.
 # MT: ?? Why do it this way? TEST: if not first, second, or last, must be charge?
-chargeTypes = [
+charge_types = [
     'Probable Cause',
     'Capias',
     'Viol of Probation',
@@ -31,7 +31,7 @@ chargeTypes = [
 
 # Holds the data for Inmate table in MYSQL db
 # MT: try removing enclosing brackets to turn list into a dict
-inmateTable = {
+inmate_table = {
     'SOID': '',
     'DOB': '',
     'Race': '',
@@ -43,7 +43,7 @@ inmateTable = {
 
 # Holds data for the Arrest table in the MySQL db
 # MT removed brackets
-arrestTable = {
+arrest_table = {
     'BookingNum': '',
     'ArrestDate': '',
     'BookingDate': '',
@@ -57,14 +57,14 @@ arrestTable = {
 # Holds data for the CourtCase table in the MySQL db
 # MT remove brackets
 
-courtcaseTable = {
+courtcase_table = {
     'CaseNum': '',
     'CourtCode': '',
     'SOID': '',
     'BookingNum': ''}
 
 # Holds data for the Charge table in the MySQL db
-chargeTable = {
+charge_table = {
     'CaseNum': '',
     'CourtCode': '',
     'SOID': '',
@@ -74,7 +74,7 @@ chargeTable = {
 }
 
 
-# Slices the data from LayoutB into individual entries and stores them in entryBlocks
+# Slices the data from LayoutB into individual entries and stores them in entry_blocks
 def block_maker(file):
     file = open(file)
 
@@ -82,21 +82,21 @@ def block_maker(file):
     # db = mysqldb.connect('localhost','testuser','test','JailPop')
 
     # Placeholder for blocks being sliced from file
-    currentBlock = []
+    current_block = []
 
     # Finds the end of an entry by slicing the file on the line with SOID
-    # Adds the entry to entryBlocks for later disection
+    # Adds the entry to entry_blocks for later disection
     with open('..\\data\\LAYOUT B FILES\\samplecsv.csv') as csvfile:
-        filereader = csv.reader(csvfile, delimiter='\t')
-        for line in filereader:
+        filer_reader = csv.reader(csvfile, delimiter='\t')
+        for line in filer_reader:
             print line  # print
-            currentBlock.append(line)
+            current_block.append(line)
             if 'SOID' in str(line):
-                entryBlocks.append(currentBlock)
-                currentBlock = []
+                entry_blocks.append(current_block)
+                current_block = []
 
-    # Enters data from an entry in entryBlocks to table dictionaries
-    for entry in entryBlocks:
+    # Enters data from an entry in entry_blocks to table dictionaries
+    for entry in entry_blocks:
         for line in entry:
             # All first lines of an entry have the same format. This pulls the
             # data based on that format.
@@ -105,9 +105,9 @@ def block_maker(file):
                 line = line.split(',')
                 for x in line:
                     # This is where I run into the issue with the index being a string
-                    inmateTable['SOID'] = line[2]
-                    # arrestTable['Agency'] = line[5]
-                    # arrestTable['ABN'] = line[6]
+                    inmate_table['SOID'] = line[2]
+                    # arrest_table['Agency'] = line[5]
+                    # arrest_table['ABN'] = line[6]
 
             # All second lines of an entry have the same format. This pulls the
             # data based on that format.
@@ -116,29 +116,29 @@ def block_maker(file):
                 line = line.split(',')
                 slash = '/'
                 line = line.split(slash)
-                inmateTable['Race'] = line[0]
-                inmateTable['Sex'] = line[1]
-                inmateTable['Ethnicity'] = line[2]
-                inmateTable['DOB'] = slash.join(line[5], line[3], line[4])
+                inmate_table['Race'] = line[0]
+                inmate_table['Sex'] = line[1]
+                inmate_table['Ethnicity'] = line[2]
+                inmate_table['DOB'] = slash.join(line[5], line[3], line[4])
             # Figure out how to properly check that charges aren't repeated.
-            # Count attribute is in chargeTable for multiples of same charge.
+            # Count attribute is in charge_table for multiples of same charge.
             # ?Make tempCharge list to hold them, check against held charge,
             # aggregate for counts?
-            # chargeTable['Type'] = line[6]
-            # chargeTable['Desc'] = line[7]
-            # chargeTable['Court'] = line[8]
-            # chargeTable['CaseNum'] = line[9]
+            # charge_table['Type'] = line[6]
+            # charge_table['Desc'] = line[7]
+            # charge_table['Court'] = line[8]
+            # charge_table['CaseNum'] = line[9]
 
             # This should find the lines that are only charge entries, if they exist.
             # This should skip the second line of an entry even though it has a
             # charge type.
-            # if any(charge in chargeTypes for line in entry[x > 1]):
+            # if any(charge in charge_types for line in entry[x > 1]):
             # line = str(line)
             # line = line.split(',')
-            # chargeTable['Type'] = line[1]
-            # chargeTable['Desc'] = line[2]
-            # chargeTable['Court'] = line[3]
-            # chargeTable['CaseNum'] = line[4]
+            # charge_table['Type'] = line[1]
+            # charge_table['Desc'] = line[2]
+            # charge_table['Court'] = line[3]
+            # charge_table['CaseNum'] = line[4]
 
             # ADDRESS will always be in second to last line of an entry. This pulls the
             # data based on that format.
@@ -147,9 +147,9 @@ def block_maker(file):
                 line = line.split(',')
                 # Handles formatting so the title for Address and POB aren't included.
                 line = line.split(':')
-                inmateTable['Address'] = line[1]
-                inmateTable['City'] = line[2]
-                inmateTable['POB'] = line[4]
+                inmate_table['Address'] = line[1]
+                inmate_table['City'] = line[2]
+                inmate_table['POB'] = line[4]
 
             # SOID is always in last line of an entry. This pulls the data based on
             # that format.
@@ -159,9 +159,9 @@ def block_maker(file):
                 # Handles formatting so the title for ReleaseDate, ReleaseCode, and
                 # SOID aren't included.
                 line = line.split(':')
-                # arrestTable['ReleaseDate'] = line[1]
-                # arrestTable['ReleaseCode'] = line[3]
-                inmateTable['SOID'] = line[5]
+                # arrest_table['ReleaseDate'] = line[1]
+                # arrest_table['ReleaseCode'] = line[3]
+                inmate_table['SOID'] = line[5]
 
             # Will take the data from the dictionaries and enter them into the
                 # JailPop database
@@ -176,15 +176,15 @@ def block_maker(file):
 
             # Some values will be repeated. They can just be set equal to each other.
             # inmateSql = """INSERT INTO INMATE(SOID, DOB, RACE, ETHNICITY, SEX, ADDRESS, CITY, POB)
-            # VALUES (inmateTable['SOID'], inmateTable['DOB'], inmateTable['Race'], inmateTable['Ethnicity'],
-            # inmateTable['Sex'], inmateTable['Address'], inmateTable['City'], inmateTable['POB']) """
+            # VALUES (inmate_table['SOID'], inmate_table['DOB'], inmate_table['Race'], inmate_table['Ethnicity'],
+            # inmate_table['Sex'], inmate_table['Address'], inmate_table['City'], inmate_table['POB']) """
             # arrestSql = """INSERT INTO ARREST(BOOKINGNUM, ARRESTDATE, BOOKDATE, RELEASEDATE, RELEASECODE, RELREMARKS, ABN, SOID, AGENCY)
-            # VALUES (arrestTable['BookingNum'], arrestTable['ArrestDate'], arrestTable['BookingDate'], arrestTable['ReleaseDate'],
-            # arrestTable['ReleaseCode'], arrestTable['RelRemarks'], arrestTable['ABN'], arrestTable['SOID'], arrestTable['Agency'])"""
+            # VALUES (arrest_table['BookingNum'], arrest_table['ArrestDate'], arrest_table['BookingDate'], arrest_table['ReleaseDate'],
+            # arrest_table['ReleaseCode'], arrest_table['RelRemarks'], arrest_table['ABN'], arrest_table['SOID'], arrest_table['Agency'])"""
             # courtcaseSql = """INSERT INTO COURTCASE(CASENUM, COURTCODE, SOID, BOOKINGNUM)
-            # VALUES (courtcaseTable['CaseNum'], courtcaseTable['CourtCode'], courtcaseTable['SOID'], courtcaseTable['BookingNum'])"""
+            # VALUES (courtcase_table['CaseNum'], courtcase_table['CourtCode'], courtcase_table['SOID'], courtcase_table['BookingNum'])"""
             # chargeSql = """INSERT INTO CHARGE(CASENUM, COURTCODE, SOID, TYPE, DESC, COUNTS)
-            # VALUES (chargeTable['CaseNum'], chargeTable['CourtCode'], chargeTable['SOID'], chargeTable['Type'], chargeTable['Desc'], chargeTable['Counts'])"""
+            # VALUES (charge_table['CaseNum'], charge_table['CourtCode'], charge_table['SOID'], charge_table['Type'], charge_table['Desc'], charge_table['Counts'])"""
 
             # try:
             # cursor.execute( _ ) > Change to loop through the queries above
