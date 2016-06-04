@@ -31,6 +31,7 @@ charge_types = [
 
 # Holds the data for Inmate table in MYSQL db
 # MT: try removing enclosing brackets to turn list into a dict
+# Will need to check for consistency since address could change (at the least)
 inmate_table = {
     'SOID': '',
     'DOB': '',
@@ -56,7 +57,7 @@ arrest_table = {
 
 # Holds data for the CourtCase table in the MySQL db
 # MT remove brackets
-
+# Not sure why SOID included here, Booking Number should be key
 courtcase_table = {
     'CaseNum': '',
     'CourtCode': '',
@@ -64,15 +65,17 @@ courtcase_table = {
     'BookingNum': ''}
 
 # Holds data for the Charge table in the MySQL db
+# Not sure why SOID here, should be Booking Number?
+# courtcase_table and charge_table redundant? courtcase obsolete?
+# MT removed SOID, should just need booking number for key
 charge_table = {
     'CaseNum': '',
     'CourtCode': '',
-    'SOID': '',
-    'Type': '',
-    'Desc': '',
-    'Counts': ''
+    'Charge_Type': '',
+    'Charge': '',
+    'Counts': '',
+    'BookingNum': ''
 }
-
 
 # Slices the data from LayoutB into individual entries and stores them in entry_blocks
 def block_maker(layout_a):
@@ -97,10 +100,18 @@ def block_maker(layout_a):
                 current_block = []
 
     # Enters data from an entry in entry_blocks to table dictionaries
+
+    # Creates a list of dicts for charges since they are many-to-one
+    # Still need to check for empty charge dict (blank middle rows).
+
     for entry in entry_blocks:
 
+        # Need a charge list to support multiple charges per booking.
+        # A list of dicts? Initialize here so it refreshes for each booking.
+        charge_list = []
+
         for line_list in entry:
-            line = line_list[0]  #.pop()  #str(line_list)  # str(line)
+            line = line_list[0]  # extract string from one element list
             line_split = line.split(',')
             # All first lines of an entry have the same format. This pulls the
             # data based on that format.
@@ -110,71 +121,93 @@ def block_maker(layout_a):
             #print "entry[3] =", entry[3]
 
             if line_list == entry[0]:
-                # first entry should be last, first...
-                #print "First line in entry = ", line
-                #print "line_split = ", line_split
-                for x in line_split:
-                    # This is where I run into the issue with the index being a string
-                    inmate_table['SOID'] = line_split[2]
-                    # arrest_table['Agency'] = line[5]
-                    # arrest_table['ABN'] = line[6]
+                # first entry should be last name, first name, ...
+                # need to add names for consistency checks
 
-            # All second lines of an entry have the same format. This pulls the
-            # data based on that format.
-            if line_list == entry[1]:
+                print
+                print "First line in entry = ", line
+                #print "line_split = ", line_split
+
+                book_num = line_split[2]  # need to add book_num to other tables (rows)
+                arrest_table['BookingNum'] = book_num
+                arrest_table['Agency'] = line_split[5]
+                # why is ABN in charge_table since it's on first line?
+                # will need to save it here to add it for other charge lines.
+                charge_table['ABN'] = line_split[6]
+
+            # All second lines of an entry have the same format.
+            # might need to check for missing values somewhere: write tests?
+            elif line_list == entry[1]:
                 print "Second line in entry = ", line
                 inmate_table['Race'] = line_split[0][0]
                 inmate_table['Sex'] = line_split[0][4]
                 inmate_table['Ethnicity'] = line_split[0][8]
                 inmate_table['DOB'] = line_split[0][12:21]
-                print "inmate_table = ", inmate_table
-            # Figure out how to properly check that charges aren't repeated.
+                #print "inmate_table = ", inmate_table
+
+            # Figure out how to properly check that charges aren't repeated. (maybe later)
             # Count attribute is in charge_table for multiples of same charge.
             # ?Make tempCharge list to hold them, check against held charge,
             # aggregate for counts?
-            # charge_table['Type'] = line[6]
-            # charge_table['Desc'] = line[7]
-            # charge_table['Court'] = line[8]
-            # charge_table['CaseNum'] = line[9]
 
-            # This should find the lines that are only charge entries, if they exist.
-            # This should skip the second line of an entry even though it has a
-            # charge type.
-            # if any(charge in charge_types for line in entry[x > 1]):
-            # line = str(line)
-            # line = line.split(',')
-            # charge_table['Type'] = line[1]
-            # charge_table['Desc'] = line[2]
-            # charge_table['Court'] = line[3]
-            # charge_table['CaseNum'] = line[4]
+                # added BookingNum to charge_table
+                # should refactor this to a function since it's used again
+                # need to append to dict to avoid overwrite
+                charge_table['BookingNum'] = book_num
+                charge_table['Charge_Type'] = line_split[1]
+                charge_table['Charge'] = line_split[2]
+                charge_table['CourtCode'] = line_split[3]
+                charge_table['CaseNum'] = line_split[4]
+                charge_list.append(charge_table.copy())
+                #print "Charge List After line Two = ", charge_list
 
-            # ADDRESS will always be in second to last line of an entry. This pulls the
-            # data based on that format.
-
-            """
-
-            if 'ADDRESS' in line:
-                line = str(line)
-                line = line.split(',')
+            elif 'ADDRESS' in line:
                 # Handles formatting so the title for Address and POB aren't included.
-                line = line.split(':')
-                inmate_table['Address'] = line[1]
-                inmate_table['City'] = line[2]
-                inmate_table['POB'] = line[4]
+                #line = line.split(':')
+                print "ADDRESS in line, line_split = ", line_split
+
+                inmate_table['Address'] = line_split[0][line_split[0].find(':')+2:]
+                inmate_table['City'] = line_split[1]
+                inmate_table['POB'] = line_split[2][line_split[2].find(':')+2:]
+                #print inmate_table
+
 
             # SOID is always in last line of an entry. This pulls the data based on
             # that format.
-            if 'SOID' in str(line):
-                line = str(line)
-                line = line.split(',')
+            elif 'SOID' in line:
+                print "SOID in line, line_split = ", line_split
                 # Handles formatting so the title for ReleaseDate, ReleaseCode, and
                 # SOID aren't included.
-                line = line.split(':')
-                # arrest_table['ReleaseDate'] = line[1]
-                # arrest_table['ReleaseCode'] = line[3]
-                inmate_table['SOID'] = line[5]
+                arrest_table['ReleaseDate'] = line_split[0][line_split[0].find(':')+2:]
+                arrest_table['ReleaseCode'] = line_split[1][line_split[1].find(':')+2:]
+                inmate_table['SOID'] = line_split[2][line_split[2].find(':')+2:]
 
-            """
+            else:
+                print "Middle charge line, line_split = ", line_split
+
+                # This should find the lines that are only charge entries, if they exist.
+                # This should skip the second line of an entry even though it has a
+                # charge type.
+                # if any(charge in charge_Charge_Types for line in entry[x > 1]):
+
+                charge_table['BookingNum'] = book_num
+                charge_table['Charge_Type'] = line_split[1]
+                charge_table['Charge'] = line_split[2]
+                charge_table['CourtCode'] = line_split[3]
+                charge_table['CaseNum'] = line_split[4]
+                # Need to check for empty dict before append
+                charge_list.append(charge_table.copy())
+                #print "Charge List In Else = ", charge_list
+
+                # ADDRESS will always be in second to last line of an entry. This pulls the
+                # data based on that format.
+
+        #print "inmate_table = ", inmate_table
+        #print "arrest_table = ", arrest_table
+        print "charge_list = ", charge_list
+
+
+
 
 
             # Will take the data from the dictionaries and enter them into the
@@ -197,8 +230,8 @@ def block_maker(layout_a):
             # arrest_table['ReleaseCode'], arrest_table['RelRemarks'], arrest_table['ABN'], arrest_table['SOID'], arrest_table['Agency'])"""
             # courtcaseSql = """INSERT INTO COURTCASE(CASENUM, COURTCODE, SOID, BOOKINGNUM)
             # VALUES (courtcase_table['CaseNum'], courtcase_table['CourtCode'], courtcase_table['SOID'], courtcase_table['BookingNum'])"""
-            # chargeSql = """INSERT INTO CHARGE(CASENUM, COURTCODE, SOID, TYPE, DESC, COUNTS)
-            # VALUES (charge_table['CaseNum'], charge_table['CourtCode'], charge_table['SOID'], charge_table['Type'], charge_table['Desc'], charge_table['Counts'])"""
+            # chargeSql = """INSERT INTO CHARGE(CASENUM, COURTCODE, SOID, Charge_Type, DESC, COUNTS)
+            # VALUES (charge_table['CaseNum'], charge_table['CourtCode'], charge_table['SOID'], charge_table['Charge_Type'], charge_table['Charge'], charge_table['Counts'])"""
 
             # try:
             # cursor.execute( _ ) > Change to loop through the queries above
