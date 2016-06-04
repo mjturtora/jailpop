@@ -59,7 +59,7 @@ arrest_table = {
 # MT remove brackets
 # Not sure why SOID included here, Booking Number should be key
 courtcase_table = {
-    'CaseNum': '',
+    'CourtCase': '',
     'CourtCode': '',
     'SOID': '',
     'BookingNum': ''}
@@ -68,15 +68,17 @@ courtcase_table = {
 # Not sure why SOID here, should be Booking Number?
 # courtcase_table and charge_table redundant? courtcase obsolete?
 # MT removed SOID, should just need booking number for key
+charge_table = {}
+'''
 charge_table = {
-    'CaseNum': '',
+    'CourtCase': '',
     'CourtCode': '',
     'Charge_Type': '',
     'Charge': '',
     'Counts': '',
     'BookingNum': ''
 }
-
+'''
 # Slices the data from LayoutB into individual entries and stores them in entry_blocks
 def block_maker(layout_a):
     file = open(layout_a)
@@ -133,7 +135,7 @@ def block_maker(layout_a):
                 arrest_table['Agency'] = line_split[5]
                 # why is ABN in charge_table since it's on first line?
                 # will need to save it here to add it for other charge lines.
-                charge_table['ABN'] = line_split[6]
+                arrest_table['ABN'] = line_split[6]
 
             # All second lines of an entry have the same format.
             # might need to check for missing values somewhere: write tests?
@@ -157,7 +159,7 @@ def block_maker(layout_a):
                 charge_table['Charge_Type'] = line_split[1]
                 charge_table['Charge'] = line_split[2]
                 charge_table['CourtCode'] = line_split[3]
-                charge_table['CaseNum'] = line_split[4]
+                charge_table['CourtCase'] = line_split[4]
                 charge_list.append(charge_table.copy())
                 #print "Charge List After line Two = ", charge_list
 
@@ -183,27 +185,22 @@ def block_maker(layout_a):
                 inmate_table['SOID'] = line_split[2][line_split[2].find(':')+2:]
 
             else:
+                # Finally, if not 1st, 2nd, or last, must be charge or blank
                 print "Middle charge line, line_split = ", line_split
+                # Test for blank before adding to dict
+                if line.replace(' ', '').replace(',', ''):
+                    #print 'LINE = ', line
+                    charge_table['Charge_Type'] = line_split[1]
+                    charge_table['Charge'] = line_split[2]
+                    charge_table['CourtCode'] = line_split[3]
+                    charge_table['CourtCase'] = line_split[4]
+                    charge_table['BookingNum'] = book_num
+                    charge_list.append(charge_table.copy())
 
-                # This should find the lines that are only charge entries, if they exist.
-                # This should skip the second line of an entry even though it has a
-                # charge type.
-                # if any(charge in charge_Charge_Types for line in entry[x > 1]):
+                    #print "Charge List In Else = ", charge_list
 
-                charge_table['BookingNum'] = book_num
-                charge_table['Charge_Type'] = line_split[1]
-                charge_table['Charge'] = line_split[2]
-                charge_table['CourtCode'] = line_split[3]
-                charge_table['CaseNum'] = line_split[4]
-                # Need to check for empty dict before append
-                charge_list.append(charge_table.copy())
-                #print "Charge List In Else = ", charge_list
-
-                # ADDRESS will always be in second to last line of an entry. This pulls the
-                # data based on that format.
-
-        #print "inmate_table = ", inmate_table
-        #print "arrest_table = ", arrest_table
+        print "inmate_table = ", inmate_table
+        print "arrest_table = ", arrest_table
         print "charge_list = ", charge_list
 
 
@@ -229,9 +226,9 @@ def block_maker(layout_a):
             # VALUES (arrest_table['BookingNum'], arrest_table['ArrestDate'], arrest_table['BookingDate'], arrest_table['ReleaseDate'],
             # arrest_table['ReleaseCode'], arrest_table['RelRemarks'], arrest_table['ABN'], arrest_table['SOID'], arrest_table['Agency'])"""
             # courtcaseSql = """INSERT INTO COURTCASE(CASENUM, COURTCODE, SOID, BOOKINGNUM)
-            # VALUES (courtcase_table['CaseNum'], courtcase_table['CourtCode'], courtcase_table['SOID'], courtcase_table['BookingNum'])"""
+            # VALUES (courtcase_table['CourtCase'], courtcase_table['CourtCode'], courtcase_table['SOID'], courtcase_table['BookingNum'])"""
             # chargeSql = """INSERT INTO CHARGE(CASENUM, COURTCODE, SOID, Charge_Type, DESC, COUNTS)
-            # VALUES (charge_table['CaseNum'], charge_table['CourtCode'], charge_table['SOID'], charge_table['Charge_Type'], charge_table['Charge'], charge_table['Counts'])"""
+            # VALUES (charge_table['CourtCase'], charge_table['CourtCode'], charge_table['SOID'], charge_table['Charge_Type'], charge_table['Charge'], charge_table['Counts'])"""
 
             # try:
             # cursor.execute( _ ) > Change to loop through the queries above
