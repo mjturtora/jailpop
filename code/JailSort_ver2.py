@@ -98,32 +98,36 @@ def block_maker(layout_a):
 
     # Enters data from an entry in entry_blocks to table dictionaries
     for entry in entry_blocks:
+
         for line_list in entry:
+            line = line_list[0]  #.pop()  #str(line_list)  # str(line)
+            line_split = line.split(',')
             # All first lines of an entry have the same format. This pulls the
             # data based on that format.
+            #print "entry[0] =", entry[0]
+            #print "entry[1] =", entry[1]
+            #print "entry[2] =", entry[2]
+            #print "entry[3] =", entry[3]
+
             if line_list == entry[0]:
-                line = line_list.pop()  #str(line_list)  # str(line)
-                line_split = line.split(',')
-                print "First line in entry = ", line
-                print "line_split = ", line_split
+                # first entry should be last, first...
+                #print "First line in entry = ", line
+                #print "line_split = ", line_split
                 for x in line_split:
                     # This is where I run into the issue with the index being a string
-                    inmate_table['SOID'] = line[2]
+                    inmate_table['SOID'] = line_split[2]
                     # arrest_table['Agency'] = line[5]
                     # arrest_table['ABN'] = line[6]
 
             # All second lines of an entry have the same format. This pulls the
             # data based on that format.
-            if line == entry[1]:
+            if line_list == entry[1]:
                 print "Second line in entry = ", line
-                line = str(line)
-                line = line.split(',')
-                slash = '/'
-                line = line.split(slash)
-                inmate_table['Race'] = line[0]
-                inmate_table['Sex'] = line[1]
-                inmate_table['Ethnicity'] = line[2]
-                inmate_table['DOB'] = slash.join(line[5], line[3], line[4])
+                inmate_table['Race'] = line_split[0][0]
+                inmate_table['Sex'] = line_split[0][4]
+                inmate_table['Ethnicity'] = line_split[0][8]
+                inmate_table['DOB'] = line_split[0][12:21]
+                print "inmate_table = ", inmate_table
             # Figure out how to properly check that charges aren't repeated.
             # Count attribute is in charge_table for multiples of same charge.
             # ?Make tempCharge list to hold them, check against held charge,
@@ -146,6 +150,9 @@ def block_maker(layout_a):
 
             # ADDRESS will always be in second to last line of an entry. This pulls the
             # data based on that format.
+
+            """
+
             if 'ADDRESS' in line:
                 line = str(line)
                 line = line.split(',')
@@ -166,6 +173,9 @@ def block_maker(layout_a):
                 # arrest_table['ReleaseDate'] = line[1]
                 # arrest_table['ReleaseCode'] = line[3]
                 inmate_table['SOID'] = line[5]
+
+            """
+
 
             # Will take the data from the dictionaries and enter them into the
                 # JailPop database
