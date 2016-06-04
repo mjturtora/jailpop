@@ -75,8 +75,8 @@ charge_table = {
 
 
 # Slices the data from LayoutB into individual entries and stores them in entry_blocks
-def block_maker(file):
-    file = open(file)
+def block_maker(layout_a):
+    file = open(layout_a)
 
     # Open database connection
     # db = mysqldb.connect('localhost','testuser','test','JailPop')
@@ -89,21 +89,24 @@ def block_maker(file):
     with open('..\\data\\LAYOUT B FILES\\samplecsv.csv') as csvfile:
         filer_reader = csv.reader(csvfile, delimiter='\t')
         for line in filer_reader:
-            print line  # print
+            # print line  # line is a 1 element list of type string.
             current_block.append(line)
-            if 'SOID' in str(line):
+            if 'SOID' in line[0]:  #str(line):
                 entry_blocks.append(current_block)
+                # print "Current Block = ", current_block  # a list of lists with 1 string
                 current_block = []
 
     # Enters data from an entry in entry_blocks to table dictionaries
     for entry in entry_blocks:
-        for line in entry:
+        for line_list in entry:
             # All first lines of an entry have the same format. This pulls the
             # data based on that format.
-            if line == entry[0]:
-                line = str(line)
-                line = line.split(',')
-                for x in line:
+            if line_list == entry[0]:
+                line = line_list.pop()  #str(line_list)  # str(line)
+                line_split = line.split(',')
+                print "First line in entry = ", line
+                print "line_split = ", line_split
+                for x in line_split:
                     # This is where I run into the issue with the index being a string
                     inmate_table['SOID'] = line[2]
                     # arrest_table['Agency'] = line[5]
@@ -112,6 +115,7 @@ def block_maker(file):
             # All second lines of an entry have the same format. This pulls the
             # data based on that format.
             if line == entry[1]:
+                print "Second line in entry = ", line
                 line = str(line)
                 line = line.split(',')
                 slash = '/'
