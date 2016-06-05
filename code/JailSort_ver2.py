@@ -108,6 +108,7 @@ def block_maker(layout_a):
     with open('..\\data\\LAYOUT B FILES\\samplecsv.csv') as csvfile:
         filer_reader = csv.reader(csvfile, delimiter=',', quotechar='"')  #\t')
         #print filer_reader
+
         for line in filer_reader:
             #print line  # line is a 1 element list of type string.
             current_block.append(line)
