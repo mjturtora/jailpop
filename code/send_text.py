@@ -21,6 +21,24 @@ def read_auth():
     return account_sid, auth_token
 
 
+def build_message_body(party_name, case_number, date_time, location):
+    """
+    Constructs message text.
+    :param party_name:
+    :param case_number:
+    :param date_time:
+    :param location:
+    :return:
+    """
+    message_body = party_name + '\n\n' + \
+                   'Your Hearing for:\n' + \
+                   '   Case Number: ' + case_number + '\n\n' + \
+                   'Will be held: ' + date_time + '\n\n' + \
+                   'In: ' + location  # + '\n'
+    #print message_body
+    return message_body
+
+
 def get_numbers(to):
     """
     Finds a from and to phone number from external file.
@@ -72,23 +90,6 @@ def send_text(body, to_number, from_number, auth, debug=True):
     print "Message Text Follows:"
     print body
 
-
-def build_message_body(party_name, case_number, date_time, location):
-    """
-    Constructs message text.
-    :param party_name:
-    :param case_number:
-    :param date_time:
-    :param location:
-    :return:
-    """
-    message_body = party_name + '\n\n' + \
-                   'Your Hearing for:\n' + \
-                   '   Case Number: ' + case_number + '\n\n' + \
-                   'Will be held: ' + date_time + '\n\n' + \
-                   'In: ' + location  # + '\n'
-    #print message_body
-    return message_body
 
 if __name__ == "__main__":
     # read_auth gets the sid and token
