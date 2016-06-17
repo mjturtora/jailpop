@@ -67,7 +67,7 @@ def send_text(body, to_number, from_number, auth, debug=True):
     :param to_number: phone number to send to.
     :param from_number: phone number to send from.
     :param auth: Tuple of Twilio sid and authorization token.
-    :return:
+    :return: Nothing
     """
     # Your Account Sid and Auth Token from twilio.com/user/account
 
@@ -86,12 +86,29 @@ def send_text(body, to_number, from_number, auth, debug=True):
         print "Would have sent the following if debug = False:"
         print
 
-    print "To:", to_number
+    print "To:", to_number, "  From: ", from_number
     print "Message Text Follows:"
     print body
 
 
 if __name__ == "__main__":
+    """
+    Sends text message using Twilio to client after searching for client name in court
+    schedule datafile. Reads client names and numbers from external file. Debug "True"
+    by default will print to stdout what would have be sent.
+
+    Functions called in this order:
+        read_auth (gets Twilio tokens from file),
+        build_message_body (assembles text body from data in file)
+        get_numbers (reads file of client numbers)
+        send_text (calls Twilio API to send message)
+
+    Future needs: (1) separate "client" and "receiver" so message can be send to any
+    combination of defendant and representative; (2) send texts for multiple cases;
+    (3) improve data model for efficiency by storing external file data for faster
+    access; and (4) read schedule data from function instead of from main.
+    """
+
     # read_auth gets the sid and token
     auth = read_auth()
 
