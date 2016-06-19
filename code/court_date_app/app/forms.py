@@ -3,5 +3,7 @@ from wtforms import StringField, BooleanField
 from wtforms.validators import DataRequired
 
 class InputForm(Form):
-    search_name = StringField('search_name', validators=[DataRequired()])
+    first_name = StringField('first_name', validators=[DataRequired()])
+    last_name = StringField('last_name', validators=[DataRequired()])
+    case_num = StringField('case_num', validators=[DataRequired()])
     remember_me = BooleanField('remember_me', default=False)
