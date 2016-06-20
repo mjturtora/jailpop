@@ -3,7 +3,7 @@ from app import app
 from app import models as mdl
 from .forms import InputForm
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     form = InputForm()
