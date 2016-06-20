@@ -1,0 +1,10 @@
+<!-- extend from base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Result Form!</h1>
+    <div>
+        <h1>{{name}}</h1>
+        {{data | safe}}
+    </div>
+{% endblock %}

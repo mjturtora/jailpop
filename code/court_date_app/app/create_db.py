@@ -1,11 +1,8 @@
 
-import csv
 import pandas as pd
 import sqlalchemy as sa
-#from sqlalchemy import create_engine
-# http://pandas.pydata.org/pandas-docs/stable/io.html#engine-connection-examples
-engine = sa.create_engine('sqlite:///odyssey.db')
 
+engine = sa.create_engine('sqlite:///odyssey.db')
 
 def read_odyssey():
 
