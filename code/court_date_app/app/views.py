@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, g, session
 import sqlalchemy as sa
 from app import app
-from app import search as se
+from app import models as mdl
 from .forms import InputForm
 import pandas as pd
 
@@ -24,8 +24,8 @@ def index():
 
 @app.route('/results')
 def results():
-    df = se.search_last(session['last_name'])
-    print df.to_html
+    df = mdl.search_last(session['last_name'])
+    #print df.to_html
     return render_template('results.html',
                            data=df.to_html(),
                            title='When Is My Court Date',
