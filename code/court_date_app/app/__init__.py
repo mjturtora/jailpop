@@ -12,4 +12,5 @@ app.config.from_object('config')
 # creating engine here and importing in models does work
 engine = sa.create_engine('sqlite:///app/odyssey.db')
 
+# imports really needed even though pycharm doesn't think so:
 from app import views, models
