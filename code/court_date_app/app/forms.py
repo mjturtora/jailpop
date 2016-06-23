@@ -1,3 +1,4 @@
+from flask import flash
 from flask.ext.wtf import Form
 from wtforms import StringField, BooleanField
 from wtforms.validators import DataRequired
@@ -8,6 +9,8 @@ class InputForm(Form):
     case_num = StringField('case_num', validators=[DataRequired()])
     remember_me = BooleanField('remember_me', default=False)
 
+    # http://flask-wtf.readthedocs.io/en/latest/api.html#flask_wtf.Form.validate_on_submit
+    # http://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-vii-unit-testing
     def validate(self):
         if not Form.validate(self):
             print "not form validate"
@@ -17,5 +20,6 @@ class InputForm(Form):
                 print "Should return True"
                 return True
         print "Should return False"
+        flash('Must enter at least one search term.')
 
         return False

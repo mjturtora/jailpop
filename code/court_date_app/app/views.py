@@ -8,13 +8,19 @@ from .forms import InputForm
 def index():
     form = InputForm()
     if form.validate_on_submit():
+        session['first_name'] = form.first_name._value()
         session['last_name'] = form.last_name._value()
+        session['case_num'] = form.case_num._value()
+
         flash('Will search for First Name: %s, Last Name: %s, \
                Case Number: %s, remember_me= %s' %
               (form.first_name._value(), form.last_name._value(),
                form.case_num._value(), str(form.remember_me.data)))
 
         return redirect(url_for('results'))
+    # Need a flash in validate function to write prompt that no
+    # search was done so user knows something happened when index is
+    # rendered a second time.
 
     return render_template('index.html',
                            title='When Is My Court Date',
@@ -22,7 +28,13 @@ def index():
 
 @app.route('/results')
 def results():
-    df = mdl.search_last(session['last_name'].replace(' ', ''))
+    df = mdl.search_all(session['first_name'].replace(' ', ''),
+                         session['last_name'].replace(' ', ''),
+                         session['case_num'].replace(' ', '')
+                        )
+
+    #df = mdl.search_last(session['last_name'].replace(' ', ''))
+
     return render_template('results.html',
                            data=df.to_html(),
                            title='My Court Date Is',

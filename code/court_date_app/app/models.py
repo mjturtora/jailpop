@@ -8,6 +8,35 @@ def search_last(last):
     return df
 
 
+def search_all(first, last, case):
+    if case:
+        print 'Searching for case = ', case
+        sql_text = 'SELECT * FROM odyssey WHERE "Case Number" LIKE "%' + case + '%";'
+        df = pd.read_sql_query(sql_text, engine)
+        print 'len(df) = ', len(df)
+    elif last:
+        print 'Searching for last = ', last
+        sql_text = 'SELECT * FROM odyssey WHERE lastname_stripped LIKE "%' + last + '%";'
+        df = pd.read_sql_query(sql_text, engine)
+        print 'len(df) = ', len(df)
+    elif first:
+        print 'Searching for first'
+        print 'Only first name entered, searching for first name= ', first
+        sql_text = 'SELECT * FROM odyssey WHERE firstname_stripped LIKE "%' + first + '%";'
+        df = pd.read_sql_query(sql_text, engine)
+        print 'len(df) = ', len(df)
+        print 'After first name search, df= ', df
+    if len(df) > 1:
+        print 'Searching for first after initial search.'
+        print 'len(df) = ', len(df)
+        if first:
+            df = df.loc[df['firstname_stripped'].str.contains(first)]
+    if len(df) == 0:
+        print "Need to add NO RESULTS prompt and return to index"
+    print 'Done with search'
+    return df
+
+
 if __name__ == "__main__":
 
     last_name = 'AAGAARD'
