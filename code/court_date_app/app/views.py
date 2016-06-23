@@ -28,9 +28,9 @@ def index():
 
 @app.route('/results')
 def results():
-    df = mdl.search_all(session['first_name'].replace(' ', ''),
-                         session['last_name'].replace(' ', ''),
-                         session['case_num'].replace(' ', '')
+    df = mdl.search_all(session['first_name'].upper().replace(' ', ''),
+                         session['last_name'].upper().replace(' ', ''),
+                         session['case_num'].upper().replace(' ', '')
                         )
 
     #df = mdl.search_last(session['last_name'].replace(' ', ''))
