@@ -1,4 +1,4 @@
-from flask import flash
+from flask import flash, Markup
 from flask.ext.wtf import Form
 from wtforms import StringField, BooleanField
 from wtforms.validators import DataRequired
@@ -20,6 +20,7 @@ class InputForm(Form):
                 print "Should return True"
                 return True
         print "Should return False"
-        flash('Must enter at least one search term.')
+        info = Markup('<h2 style="color:red"> Must enter at least one search term. </h2>')
+        flash(info)
 
         return False
