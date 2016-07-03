@@ -13,3 +13,7 @@ with the string "corrected_" concatenated to the original column name.
 
 OpenRefine has a built in limit for the amount of data it will read in.
 Max says you can increase the limit by modifying the .ini file
+
+In the jail.db file the POB column is a cancatenation of address city and POB
+
+Once the data is cleaned we can include if an address is a homeless shelter
