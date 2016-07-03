@@ -9,3 +9,7 @@ the resident street address and city.
 
 Nothing should be deleted. Instead an addtional column should be created
 with the string "corrected_" concatenated to the original column name.
+
+
+OpenRefine has a built in limit for the amount of data it will read in.
+Max says you can increase the limit by modifying the .ini file
