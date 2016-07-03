@@ -1,0 +1,11 @@
+Make CSV and make the edits on those. Columns that need cleaning are
+date of birth, city, resident street address, and place of birth.
+The top priorites are date of birth, city, and resident street address.
+
+The CSV will use the booking number as the unique key. Should probably 
+include the SOID because that uniquely identifes individuals and will be 
+helpul for resolving date of birth, place of birth, and to a lesser extent
+the resident street address and city. 
+
+Nothing should be deleted. Instead an addtional column should be created
+with the string "corrected_" concatenated to the original column name.
