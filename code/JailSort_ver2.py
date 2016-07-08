@@ -80,7 +80,7 @@ def reverse_date(date_in):
 def build_charge_table(book_num, charge_list, line_split, charge_count):
     # added BookingNum to charge_table
     # need to append to dict to avoid overwrite
-    print charge_count
+    #print charge_count
     charge_table['BookingNum'] = book_num
     charge_table['Charge_Type'] = line_split[1]
     charge_table['Charge'] = line_split[2]
@@ -119,7 +119,7 @@ def block_maker(layout_a):
     # Still need to check for empty charge dict (blank middle rows).
 
     for entry in entry_blocks:
-        print
+        #print
         #print 'Entry = ', entry
         # Need a charge list to support multiple charges per booking.
         # A list of dicts? Initialize here so it refreshes for each booking.
@@ -144,7 +144,7 @@ def block_maker(layout_a):
                 # first entry should be last name, first name, ...
                 # need to add names for consistency checks
 
-                print
+                #print
                 #print "First line in entry = ", line
                 #print "line_split = ", line_split
 
@@ -177,10 +177,23 @@ def block_maker(layout_a):
                 #line = line.split(':')
                 ##print "ADDRESS in line, line_split = ", line_split
 
-                inmate_table['Address'] = line_split[0][line_split[0].find(':')+2:]
-                inmate_table['City'] = line_split[1]
-                inmate_table['POB'] = line_split[2][line_split[2].find(':')+2:]
-                #print inmate_table
+                inmate_table['Address'] = line_split[0][line_split[0].find(':')+2:].strip()
+                inmate_table['City'] = line_split[1].strip()
+                inmate_table['POB'] = line_split[2][line_split[2].find(':')+2:].strip()
+
+                # output addresses to file (temporary?)
+
+                if inmate_table['Address']:
+                    if inmate_table['City'] == 'TPA':
+                        inmate_table['City'] = 'TAMPA'
+                    if inmate_table['City'] == 'ST PETE':
+                        inmate_table['City'] = 'ST PETERSBURG'
+
+                    print inmate_table['Address'] + ', ' + inmate_table['City'] + ', FL'
+                    address_string = inmate_table['Address'] + ', ' + inmate_table['City'] \
+                        + ', FL' + '\n'
+
+                    OUTPUT.write(address_string)
 
 
             # SOID is always in last line of an entry. This pulls the data based on
@@ -212,6 +225,8 @@ def block_maker(layout_a):
         # print "inmate_table = ", inmate_table
         # print "arrest_table = ", arrest_table
         # print "charge_list = ", charge_list
+
+
 '''
         # Open database connection
         jailpopconnect = mysql.connector.connect(host='localhost',database='jailpop',user='testuser',password='test')
@@ -276,4 +291,10 @@ def block_maker(layout_a):
 
     #file.close()
 '''
-block_maker('..\data\LAYOUT A FILES\\1 LAYOUT A CSV.csv')
+
+if __name__ == '__main__':
+	with open('..\\data\\address.txt', 'w') as OUTPUT:
+	    block_maker('..\data\LAYOUT A FILES\\1 LAYOUT A CSV.csv')
+
+
+
