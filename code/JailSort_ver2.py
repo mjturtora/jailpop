@@ -71,11 +71,11 @@ arrest_table = {
 charge_table = {}
 
 def reverse_date(date_in):
-	#line_split[0][12:22])
-	month = date_in[0:2]
-	day = date_in[3:5]
-	year = date_in[6:10]
-	return year + '/' + month + '/' + day
+    #line_split[0][12:22])
+    month = date_in[0:2]
+    day = date_in[3:5]
+    year = date_in[6:10]
+    return year + '/' + month + '/' + day
 
 def build_charge_table(book_num, charge_list, line_split, charge_count):
     # added BookingNum to charge_table
@@ -120,7 +120,7 @@ def block_maker(layout_a):
 
     for entry in entry_blocks:
         print
-		#print 'Entry = ', entry
+        #print 'Entry = ', entry
         # Need a charge list to support multiple charges per booking.
         # A list of dicts? Initialize here so it refreshes for each booking.
         charge_list = []
@@ -214,8 +214,8 @@ def block_maker(layout_a):
         # print "charge_list = ", charge_list
 '''
         # Open database connection
-		jailpopconnect = mysql.connector.connect(host='localhost',database='jailpop',user='testuser',password='test')
-		cursor = jailpopconnect.cursor()
+        jailpopconnect = mysql.connector.connect(host='localhost',database='jailpop',user='testuser',password='test')
+        cursor = jailpopconnect.cursor()
 
         # Will take the data from the dictionaries and enter them into the
         # JailPop database
@@ -223,40 +223,57 @@ def block_maker(layout_a):
         # Also, need to include a checking feature that will ensure there aren't
         # redundant entries
 
-        # SQL queries to INSERT a record into the database.
-        queries = (inmateSql, arrestSql, courtcaseSql, chargeSql)
-
         # Some values will be repeated. They can just be set equal to each other.
         inmateSql = "INSERT INTO INMATE " \
-					"(SOID, DOB, RACE, ETHNICITY, SEX, ADDRESS, CITY, POB) " \
-					"VALUES ('" + inmate_table['SOID'] + "', '" + inmate_table['DOB'] + "', '" + inmate_table['Race'] + "', '" + inmate_table['Ethnicity'] + "', '" \
-					+ inmate_table['Sex'] + "', '" + inmate_table['Address'] + "', '" + inmate_table['City'] + "', '" + inmate_table['POB'] + "')"
-        
-		arrestSql = "INSERT INTO ARREST" \
-					"(BOOKINGNUM, ARRESTDATE, BOOKDATE, RELEASEDATE, RELEASECODE, RELREMARKS, ABN, SOID, AGENCY)" \
-					"VALUES ('" + arrest_table['BookingNum'] + "', '" + arrest_table['ArrestDate'] + "', '" + arrest_table['BookingDate'] + "', '" + arrest_table['ReleaseDate'], "', '" \
-					+ arrest_table['ReleaseCode'] + "', '" + arrest_table['RelRemarks'] + "', '" + arrest_table['ABN'] "', '" + arrest_table['SOID'] + "', '" + arrest_table['Agency'] + "')"
-        
-		chargeSql = "INSERT INTO CHARGE" \
-					"(CASENUM, COURTCODE, SOID, Charge_Type, DESC, COUNTS)" \
-					"VALUES ('" + charge_table['CourtCase'] + "', '" + charge_table['CourtCode'] + "', '" + charge_table['SOID'] + "', '" \
-					+ charge_table['Charge_Type'] + "', '" + charge_table['Charge'] + "', '" + charge_table['Counts'] + "')"
+                    "(SOID, DOB, RACE, ETHNICITY, SEX, ADDRESS, CITY, POB) " \
+                    "VALUES ('" + inmate_table['SOID'] + "', '" + inmate_table['DOB'] + "', '" + inmate_table['Race'] + "', '" + inmate_table['Ethnicity'] + "', '" \
+                    + inmate_table['Sex'] + "', '" + inmate_table['Address'] + "', '" + inmate_table['City'] + "', '" + inmate_table['POB'] + "')"
+
+        arrestSql = "INSERT INTO ARREST" \
+                    "(BOOKINGNUM, ARRESTDATE, BOOKDATE, RELEASEDATE, RELEASECODE, RELREMARKS, ABN, SOID, AGENCY)" \
+                    "VALUES ('" + arrest_table['BookingNum'] + "', '" + arrest_table['ArrestDate'] + "', '" + arrest_table['BookingDate'] + "', '" + arrest_table['ReleaseDate'], "', '" \
+                    + arrest_table['ReleaseCode'] + "', '" + arrest_table['RelRemarks'] + "', '" + arrest_table['ABN'] + "', '" + arrest_table['SOID'] + "', '" + arrest_table['Agency'] + "')"
+
+        # chargeSql = "INSERT INTO CHARGE"  \
+                    # "(CASENUM, COURTCODE, BOOKINGNUM, TYPE, DESC, COUNTS)" \
+                    # "VALUES ('" + dict['CourtCase'] + "', '" + dict['CourtCode'] + "', '" + dict['BookingNum'] + "', '" \
+                    # + dict['Charge_Type'] + "', '" + dict['Charge'] + "', '" + str(dict['Counts']) + "')"
+
+        #print arrestSql
+        #print len(charge_list)
+
+        #SQL queries to INSERT a record into the database.
+        #queries = (inmateSql, arrestSql)
+
+        #This is where we're attempting to loop through the charges
+        #Currently the script only catches the last charge.
+        for i in range(len(charge_list)):
+            #print 'i, dict = ', i, charge_list[i]['CourtCase']
+            charge_string = '('
+            dict = charge_list[i]
+            for key, value in dict.iteritems():
+            #for value in dict.value():
+                print key, value
+                substring = value
+                charge_string = charge_string + value + ','
+            charge_string = charge_string + ')'
+
+            #inmate_charges =
+            #print 'dict = ', dict
+            #loop through and add charges with SQL
 
         try:
-		    #Change to loop through the queries above
-		    for query in queries:
-				cursor.execute(query)
-				jailpopconnect.commit()
-        
-		except Error as error:
+            cursor.execute( - ) #The dash is a placeholder for one of the above SQL commands
+            jailpopconnect.commit()
+
+        except Error as error:
             # Rollback in case there is any error
             jailpopconnect.rollback()
-			print error
-			
-		cursor.close()
-		jailpopconnect.close()
-    file.close()
+            print error
+
+        cursor.close()
+        jailpopconnect.close()
+
+    #file.close()
 '''
-
-
 block_maker('..\data\LAYOUT A FILES\\1 LAYOUT A CSV.csv')
