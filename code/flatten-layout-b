@@ -3,52 +3,100 @@
 import csv
 import sys
 import gzip
-import pprint
+from datetime import datetime
 
-entry_blocks = []
-current_block = []
+def format_date(dates):
+  try:
+      return datetime.strptime(date.replace('RELEASE DATE:', ''), '%M/%d/%Y').strftime('%Y-%m-%d')
+  except:
+      return ''
 
-filename = sys.argv[1]
 
-if filename.endswith('.gz'):
-    f = gzip.open(filename)
+def clean_values(head):
+    head['pob'].replace('POB:', '').strip()
+    head['address'].replace('ADDRESS:', '').strip()
+    head['release_code'] = head['release_code'].replace('RELEASE CODE:', '').strip()
+    head['release_date'] = format_date(head['release_date'])
+
+    return head
+
+fields = [ 'soid',
+           'booking_no',
+           'name',
+           'race',
+           'sex',
+           'ethnicity',
+           'dob',
+           'agency',
+           'abn',
+           'address',
+           'city',
+           'pob',
+           'release_date',
+           'release_code', ]
+
+#           'charge_type',
+#           'charge_desc',
+#           'court',
+#           'court_case_no' ]
+
+if sys.argv[1] == '--header':
+    print(','.join(header))
+
 else:
-    f = open(filename )
+    filename = sys.argv[1]
 
-csv_reader = csv.reader(f, delimiter=',', quotechar='"')
-csv_writer = csv.writer(sys.stdout, delimiter=',', quotechar='"', lineterminator='\n')
+    if filename.endswith('.gz'):
+        f = gzip.open(filename)
+    else:
+        f = open(filename )
 
-for row in csv_reader:
-    row = [field.strip() for field in row] # Strip left and right whitespace per field
-    current_block.append(row)
+    csv_reader = csv.reader(f, delimiter=',', quotechar='"')
+    csv_writer = csv.writer(sys.stdout, delimiter=',', quotechar='"', lineterminator='\n')
 
-    for field in row:
-        if 'SOID:' in field:
-            entry_blocks.append(current_block)
-            current_block = []
+    block = []
+    blocks = []
 
-for block in entry_blocks:
-    first, last, second_last  = block[0], block[-1], block[-2]
+    for row in csv_reader:
+        row = [field.strip() for field in row] # Strip left/right whitespace
+        block.append(row)
 
-    name, booking_no, agency, abn = first[0], first[1], first[4], first[5]
-    address, city, pob = second_last[:3]
-    release_date, release_code, soid = last[:3]
+        for field in row:
+            if 'SOID:' in field:
+                blocks.append(block)
+                block = []
 
-    head = [soid, booking_no, name, agency, abn, address, city, pob, release_date, release_code]
+    for block in blocks: # See "Example block" at end
+        head = {}
+        first_row, second_row, second_last_row, last_row  = block[0], block[1], block[-2], block[-1]
 
-    first_charge = block[1][1:4]
+        head['name'], head['booking_no'], head['agency'], head['abn'] = first_row[0], first_row[1], first_row[4], first_row[5]
 
-    csv_writer.writerow(head + first_charge)
+        head['address'], head['city'], head['pob'] = second_last_row[:3]
 
-    # If more than one charge
-    #
-    if len(block) > 3:
-        for l in block[2:-3]:
-            charge = l[1:4]
-            csv_writer.writerow(head + charge)
+        head['release_date'], head['release_code'], head['soid'] = last_row[:3]
 
-f.close()
+        head['race'] = second_row[0].split('/')[0].strip()
+        head['sex'] = second_row[0].split('/')[1].strip()
+        head['ethnicity'] = second_row[0].split('/')[2].strip()
+        head['dob'] = format_date(second_row[0].split('/')[3].strip())
 
+        head = clean_values(head)
+
+        charge_type, charge_desc, court, court_case_no, = block[1][1:5]
+
+        charge = [charge_type, charge_desc, court, court_case_no]
+
+        csv_writer.writerow([head[field] for field in fields] + charge)
+
+        # If more than one charge
+        #
+        if len(block) > 3:
+            for l in block[2:-3]:
+                charge = l[1:4]
+                csv_writer.writerow(head + charge)
+
+    f.close()
 
 # Example block:
 #
