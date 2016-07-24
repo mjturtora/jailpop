@@ -18,11 +18,11 @@ else:
 csv_reader = csv.reader(f, delimiter=',', quotechar='"')
 csv_writer = csv.writer(sys.stdout, delimiter=',', quotechar='"', lineterminator='\n')
 
-for line in csv_reader:
-    line = [l.strip() for l in line] # Strip left and right whitespace per field
-    current_block.append(line)
+for row in csv_reader:
+    row = [field.strip() for field in row] # Strip left and right whitespace per field
+    current_block.append(row)
 
-    for field in line:
+    for field in row:
         if 'SOID:' in field:
             entry_blocks.append(current_block)
             current_block = []
@@ -32,9 +32,9 @@ for block in entry_blocks:
 
     name, booking_no, agency, abn = first[0], first[1], first[4], first[5]
     address, city, pob = second_last[:3]
-    release_date, city, soid = last[:3]
+    release_date, release_code, soid = last[:3]
 
-    head = [soid, booking_no, name, agency, abn, address, city, pob, release_date, city]
+    head = [soid, booking_no, name, agency, abn, address, city, pob, release_date, release_code]
 
     first_charge = block[1][1:4]
 
@@ -48,3 +48,13 @@ for block in entry_blocks:
             csv_writer.writerow(head + charge)
 
 f.close()
+
+
+# Example block:
+#
+# ['ARRINGTON,JESSE', '99068448', '', '', 'HCSO', '2650', '']
+# ['B / M / N / 01/15/1946', 'CAPIAS', 'CONSUMING ON STREETS', '41C', '9933579MO', '', ''],
+# ['', 'CAPIAS', 'POSSESSION OF OPEN CONTAINER', '41C', '9922942MO', '', ''],
+# ['', '', '', '', '', '', ''],
+# ['ADDRESS: 7800 NEBRASKA AV N', 'TAMPA', 'POB: FL', '', '', '', '']
+# ['RELEASE DATE: 01/19/2000', 'RELEASE CODE: TIME SERVED', 'SOID: 308163', '', '', '', '']
