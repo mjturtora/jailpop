@@ -34,13 +34,8 @@ fields = [ 'soid',
            'release_date',
            'release_code', ]
 
-#           'charge_type',
-#           'charge_desc',
-#           'court',
-#           'court_case_no' ]
-
 if sys.argv[1] == '--header':
-    print(','.join(header))
+    print(','.join(fields + ['charge_type', 'charge_desc', 'court', 'court_case_no']))
 
 else:
     filename = sys.argv[1]
