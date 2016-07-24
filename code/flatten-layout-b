@@ -90,7 +90,7 @@ else:
 
         if len(block) > 3: # If more than one charge
             for row in block[2:-3]:
-                charge = row[1:4]
+                charge = row[1:5]
                 csv_writer.writerow([head[field] for field in fields] + charge)
 
     f.close()
