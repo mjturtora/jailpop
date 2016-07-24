@@ -22,6 +22,10 @@ import csv
 import json
 import pprint
 import urllib
+import pandas as pd
+import sqlalchemy as sa
+
+engine = sa.create_engine('sqlite:///jailpop.db')
 
 # Array that holds the all the sliced out blocks
 entry_blocks = []
@@ -213,7 +217,9 @@ def parse_layout_b(entry_blocks):
                     if inmate_table['City'] == 'ST PETE':
                         inmate_table['City'] = 'ST PETERSBURG'
 
-                    print inmate_table['Address'] + ', ' + inmate_table['City'] + ', FL'
+                    #print "Booking Number = ", book_num  # arrest_table['BookingNum']
+                    #print inmate_table['Address'] + ', ' + inmate_table['City'] + ', FL'
+
                     address_string = inmate_table['Address'] + ', ' + inmate_table['City'] \
                         + ', FL' + '\n'
 
@@ -244,8 +250,11 @@ def parse_layout_b(entry_blocks):
                     charge_count += 1
                     build_charge_table(book_num, charge_list, line_list, charge_count)
 
-            arrest_table['Counts'] = charge_count
-                    #print "Charge List In Else = ", charge_list
+        arrest_table['Counts'] = charge_count
+        print "inmate_table = ", inmate_table
+        print "arrest_table = ", arrest_table  #['Counts']
+        print "charge_list = ", charge_list
+        #print "Charge List In Else = ", charge_list
 
         # print "inmate_table = ", inmate_table
         # print "arrest_table = ", arrest_table
@@ -262,6 +271,9 @@ if __name__ == '__main__':
     address = ['7800 NEBRASKA AV N',
                'TAMPA',
                'FL']
+    # Possible address test cases:
+    #  SALVATION ARMY, TAMPA, FL
+    #  BULL ROAD, DADE CITY, FL
     #get_smart(address)
 
 
