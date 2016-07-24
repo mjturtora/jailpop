@@ -5,20 +5,19 @@ import sys
 import gzip
 from datetime import datetime
 
-def format_date(dates):
+def format_date(date):
   try:
-      return datetime.strptime(date.replace('RELEASE DATE:', ''), '%M/%d/%Y').strftime('%Y-%m-%d')
+      return datetime.strptime(date, '%M/%d/%Y').strftime('%Y-%m-%d')
   except:
-      return ''
-
-
-def clean_values(head):
-    head['pob'].replace('POB:', '').strip()
-    head['address'].replace('ADDRESS:', '').strip()
-    head['release_code'] = head['release_code'].replace('RELEASE CODE:', '').strip()
-    head['release_date'] = format_date(head['release_date'])
-
-    return head
+      ''
+def clean_values(d):
+    d['soid'] = d['soid'].replace('SOID:', '').strip()
+    d['pob'] = d['pob'].replace('POB:', '').strip()
+    d['address'] = d['address'].replace('ADDRESS:', '').strip()
+    d['release_code'] = d['release_code'].replace('RELEASE CODE:', '').strip()
+    d['release_date'] = format_date(d['release_date'].replace('RELEASE DATE:', '').strip())
+    d['dob'] = format_date(d['dob'].strip())
+    return d
 
 fields = [ 'soid',
            'booking_no',
@@ -79,7 +78,7 @@ else:
         head['race'] = second_row[0].split('/')[0].strip()
         head['sex'] = second_row[0].split('/')[1].strip()
         head['ethnicity'] = second_row[0].split('/')[2].strip()
-        head['dob'] = format_date(second_row[0].split('/')[3].strip())
+        head['dob'] = '/'.join(second_row[0].split('/')[3:6])
 
         head = clean_values(head)
 
@@ -89,12 +88,10 @@ else:
 
         csv_writer.writerow([head[field] for field in fields] + charge)
 
-        # If more than one charge
-        #
-        if len(block) > 3:
-            for l in block[2:-3]:
-                charge = l[1:4]
-                csv_writer.writerow(head + charge)
+        if len(block) > 3: # If more than one charge
+            for row in block[2:-3]:
+                charge = row[1:4]
+                csv_writer.writerow([head[field] for field in fields] + charge)
 
     f.close()
 
