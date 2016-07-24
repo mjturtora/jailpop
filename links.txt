@@ -1,5 +1,0 @@
-
-http://www.hcso.tampa.fl.us/PublicInquiry/Arrest/Inquiry/Search
-layout A: 
-layout B: check "include arrest details"
-

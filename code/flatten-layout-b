@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+
+import csv
+import sys
+import gzip
+import pprint
+
+entry_blocks = []
+current_block = []
+
+filename = sys.argv[1]
+
+if filename.endswith('.gz'):
+    f = gzip.open(filename)
+else:
+    f = open(filename )
+
+csv_reader = csv.reader(f, delimiter=',', quotechar='"')
+csv_writer = csv.writer(sys.stdout, delimiter=',', quotechar='"', lineterminator='\n')
+
+for line in csv_reader:
+    line = [l.strip() for l in line] # Strip left and right whitespace per field
+    current_block.append(line)
+
+    for field in line:
+        if 'SOID:' in field:
+            entry_blocks.append(current_block)
+            current_block = []
+
+for block in entry_blocks:
+    first, last, second_last  = block[0], block[-1], block[-2]
+
+    name, booking_no, agency, abn = first[0], first[1], first[4], first[5]
+    address, city, pob = second_last[:3]
+    release_date, city, soid = last[:3]
+
+    head = [soid, booking_no, name, agency, abn, address, city, pob, release_date, city]
+
+    first_charge = block[1][1:4]
+
+    csv_writer.writerow(head + first_charge)
+
+    # If more than one charge
+    #
+    if len(block) > 3:
+        for l in block[2:-3]:
+            charge = l[1:4]
+            csv_writer.writerow(head + charge)
+
+f.close()
